@@ -1,38 +1,67 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>MAKE10 パズル</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    * { box-sizing: border-box }
-    body { margin:0; padding:20px; font-family:sans-serif; text-align:center }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px; font-family: sans-serif; text-align: center; }
     button {
-      padding:8px 12px; margin:4px; font-size:1rem;
-      min-width:70px; white-space:nowrap;
+      padding: 8px 12px;
+      margin: 4px;
+      font-size: 1rem;
+      min-width: 70px;
+      white-space: nowrap;
     }
-    button.selected { background:#f88; color:#fff }
-    #numbers,#operators { margin:10px 0 }
+    button.selected { background: #f88; color: #fff; }
+    #numbers, #operators { margin: 10px 0; }
     #display {
-      margin:10px auto; padding:10px;
-      border:1px solid #ccc; min-height:1.5em;
-      font-size:1.1rem; word-break:break-all;
+      margin: 10px auto;
+      padding: 10px;
+      min-height: 1.5em;
+      border: 1px solid #ccc;
+      font-size: 1.1rem;
+      word-break: break-word;
     }
-    #current { color:#555; margin-bottom:10px }
-    #status,#timer { margin:6px 0; font-weight:bold }
-    #finish { display:none; margin-top:20px }
-    #ranking { margin-top:20px; text-align:left; }
-    #ranking h2 { display:flex; align-items:center; justify-content:space-between; }
+    #current { color: #555; margin-bottom: 10px; }
+    #status, #timer { margin: 6px 0; font-weight: bold; }
+    #finish { display: none; margin-top: 20px; }
+    #ranking {
+      margin-top: 20px;
+      text-align: left;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #ranking h2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
     #resetRanking {
-      font-size:0.8rem; padding:4px 8px; margin:0;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      margin: 0;
     }
-    table { width:100%; border-collapse:collapse; margin-top:10px }
-    th,td { border:1px solid #ccc; padding:6px; text-align:center }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
     #back-link {
-      display:inline-block; margin:20px auto 0;
-      font-size:0.9rem; text-decoration:none; color:#06c;
+      display: inline-block;
+      margin: 20px auto 0;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: #06c;
     }
-    #back-link:hover { text-decoration:underline }
+    #back-link:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -65,7 +94,7 @@
     <p>あなたのタイム: <span id="finalTime">0.00</span> 秒</p>
     <p>
       名前を入力：
-      <input type="text" id="nameInput" placeholder="名無しでもOK">
+      <input type="text" id="nameInput" placeholder="名無しでもOK" />
       <button id="submitName">登録</button>
     </p>
   </div>
@@ -87,6 +116,29 @@
     </table>
   </div>
 
-  <script src="make10.js"></script>
+  <!-- Firebase SDK：Firebase v9 モジュール式 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, getDocs,
+      query, orderBy, deleteDoc, doc
+    } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB8CVjzjsPMw08Iad-pPTfOX27r9KhCtls",
+      authDomain: "make10-1713b.firebaseapp.com",
+      projectId: "make10-1713b",
+      storageBucket: "make10-1713b.appspot.com",
+      messagingSenderId: "845023446068",
+      appId: "1:845023446068:web:80504512db0a1b9c453661"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+    window._make10db = db; // グローバル共有
+  </script>
+
+  <!-- ゲームのロジック本体 -->
+  <script type="module" src="make10.js"></script>
 </body>
 </html>
