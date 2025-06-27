@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>MAKE10 パズル</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    * { box-sizing:border-box }
+    * { box-sizing: border-box }
     body { margin:0; padding:20px; font-family:sans-serif; text-align:center }
     button {
       padding:8px 12px; margin:4px; font-size:1rem;
@@ -20,13 +20,10 @@
     }
     #current { color:#555; margin-bottom:10px }
     #status,#timer { margin:6px 0; font-weight:bold }
-    /* finish 画面だけ隠す */
     #finish { display:none; margin-top:20px }
-    /* 常に見えるランキング */
     #ranking { margin-top:20px }
     table { width:100%; border-collapse:collapse; margin-top:10px }
     th,td { border:1px solid #ccc; padding:6px }
-    /* 戻るリンク */
     #back-link {
       display:inline-block; margin:20px auto 0;
       font-size:0.9rem; text-decoration:none; color:#06c;
@@ -40,7 +37,6 @@
     <h1>MAKE10 パズル</h1>
     <div id="status">問題 1/5</div>
     <div id="timer">タイム: 0.00 秒</div>
-
     <div id="numbers"></div>
     <div id="operators">
       <button data-op="+">＋</button>
@@ -48,14 +44,11 @@
       <button data-op="*">×</button>
       <button data-op="/">÷</button>
     </div>
-
     <div id="display">式を作ってね</div>
     <div id="current">計算結果：－</div>
-
     <div id="controls">
       <button id="clear">リセット</button>
     </div>
-
     <div id="message"></div>
   </div>
 
