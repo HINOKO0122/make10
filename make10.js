@@ -1,9 +1,7 @@
-// make10.js
-
-// ==== 定義領域 ====
+// ==== 定義＆UI要素取得 ====
 const TOTAL_ROUNDS = 5;
+const EPS = 1e-6;
 
-// UI 要素
 const elNumbers   = document.getElementById('numbers');
 const elOperators = document.getElementById('operators');
 const elDisplay   = document.getElementById('display');
@@ -20,118 +18,179 @@ const btnSubmitNm = document.getElementById('submitName');
 const elRanking   = document.getElementById('ranking');
 const elRankingBd = document.getElementById('rankingBody');
 
-// ゲーム状態
-let numbers = [];      // 今の問題の 4 数字
-let tokens  = [];      // 入力トークン
-let round   = 1;       // 現在のラウンド
-let startTime, timerID;
+// ==== ゲーム状態変数 ====
+let round = 1, startTime, timerID;
+let originalNumbers = [], playNumbers = [], history = [];
+let stage = 0, firstVal = null, firstIndex = null, selectedOp = null;
 
-// ==== ユーティリティ ====
-// Shunting‐yard で AST 化して括弧付き文字列を返す
-function parseAndStringify(exprTokens) {
-  const prec = { '+':1, '-':1, '*':2, '/':2 };
-  let outQ = [], opS = [];
-  exprTokens.forEach(t => {
-    if (!isNaN(t)) {
-      outQ.push({type:'num', value:t});
-    } else {
-      while (opS.length && prec[opS[opS.length-1]] >= prec[t]) {
-        const op = opS.pop();
-        const b  = outQ.pop(), a = outQ.pop();
-        outQ.push({type:'op', op, left:a, right:b});
+// ==== パズル生成：必ず解ける４つの異なる数字を返す ====
+function isSolvable(arr) {
+  if (arr.length === 1) return Math.abs(arr[0] - 10) < EPS;
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = 0; j < arr.length; j++) {
+      if (i === j) continue;
+      const a = arr[i], b = arr[j];
+      const rest = arr.filter((_, k) => k !== i && k !== j);
+      for (let op of ['+','-','*','/']) {
+        if (op === '/' && Math.abs(b) < EPS) continue;
+        let res;
+        switch(op) {
+          case '+': res = a + b; break;
+          case '-': res = a - b; break;
+          case '*': res = a * b; break;
+          case '/': res = a / b; break;
+        }
+        if (isSolvable(rest.concat([res]))) return true;
       }
-      opS.push(t);
     }
-  });
-  while (opS.length) {
-    const op = opS.pop();
-    const b  = outQ.pop(), a = outQ.pop();
-    outQ.push({type:'op', op, left:a, right:b});
   }
-  function fmt(node) {
-    if (node.type === 'num') return node.value;
-    return `(${fmt(node.left)}${node.op}${fmt(node.right)})`;
+  return false;
+}
+
+function generatePuzzle() {
+  while (true) {
+    const nums = [];
+    while (nums.length < 4) {
+      const n = Math.floor(Math.random() * 9) + 1;
+      if (!nums.includes(n)) nums.push(n);
+    }
+    if (isSolvable(nums)) return nums;
   }
-  return fmt(outQ[0]);
 }
 
-// 安全 eval
-function evalExpr(expr) {
-  try { return Function(`"use strict"; return (${expr});`)(); }
-  catch { return null; }
-}
-
-// ランキング読み書き
-function loadRanking(){
-  const r = localStorage.getItem('make10_ranking');
-  return r ? JSON.parse(r) : [];
-}
-function saveRanking(arr){
-  localStorage.setItem('make10_ranking', JSON.stringify(arr));
-}
-
-// ==== UI 更新 ====
-function renderNumbers(){
+// ==== UI 描画関数 ====
+function renderNumbers() {
   elNumbers.innerHTML = '';
-  numbers.forEach(n => {
+  playNumbers.forEach((n, i) => {
     const btn = document.createElement('button');
     btn.textContent = n;
-    btn.dataset.num = n;
-    btn.disabled = false;
-    btn.addEventListener('click', onNumber);
+    btn.dataset.index = i;
+    btn.disabled = (stage === 1) || (stage === 2 && i === firstIndex);
+    btn.addEventListener('click', onNumberClick);
     elNumbers.appendChild(btn);
   });
 }
-function updateDisplay(){
-  if (tokens.length === 0) {
-    elDisplay.textContent = '式を作ってね';
-    elCurrent.textContent = '計算結果：－';
-    return;
-  }
-  // 表示は必ず括弧付き
-  const str = parseAndStringify(tokens);
-  elDisplay.textContent = str;
 
-  // 末尾が数字なら評価
-  if (!isNaN(tokens[tokens.length - 1])) {
-    const val = evalExpr(str);
-    elCurrent.textContent = '計算結果：' + (val == null ? 'エラー' : val);
-  } else {
-    elCurrent.textContent = '計算結果：－';
-  }
+function renderOperators() {
+  Array.from(elOperators.children).forEach(btn => {
+    btn.disabled = (stage !== 1);
+  });
 }
-function updateStatus(){
+
+function renderHistory() {
+  // history[0] から順に「(a op b)」→次は「((... ) op b)」でネスト
+  let expr = '';
+  if (history.length > 0) {
+    expr = `(${history[0].a}${history[0].op}${history[0].b})`;
+    for (let k = 1; k < history.length; k++) {
+      const h = history[k];
+      expr = `(${expr}${h.op}${h.b})`;
+    }
+  }
+  elDisplay.textContent = expr || '式を作ってね';
+  elCurrent.textContent =
+    history.length > 0
+      ? '計算結果：' + history[history.length - 1].res
+      : '計算結果：－';
+}
+
+function updateStatus() {
   elStatus.textContent = `問題 ${round}/${TOTAL_ROUNDS}`;
 }
-function startTimer(){
-  startTime = Date.now();
-  elTimer.textContent = 'タイム: 0.00 秒';
-  timerID = setInterval(() => {
-    const t = (Date.now() - startTime) / 1000;
-    elTimer.textContent = `タイム: ${t.toFixed(2)} 秒`;
-  }, 100);
-}
-function stopTimer(){
-  clearInterval(timerID);
+
+// ==== イベントハンドラ ====
+// 1) 数字クリック
+function onNumberClick(e) {
+  const idx = +e.currentTarget.dataset.index;
+  const val = playNumbers[idx];
+  if (stage === 0) {
+    // 一つ目の数字選択
+    firstVal   = val;
+    firstIndex = idx;
+    stage = 1;
+    elMessage.textContent = '演算子を選択してください';
+  }
+  else if (stage === 2) {
+    // 二つ目の数字選択 → 演算してリスト更新
+    const secondVal = val;
+    let res;
+    switch (selectedOp) {
+      case '+': res = firstVal + secondVal; break;
+      case '-': res = firstVal - secondVal; break;
+      case '*': res = firstVal * secondVal; break;
+      case '/': res = firstVal / secondVal; break;
+    }
+    history.push({ a: firstVal, op: selectedOp, b: secondVal, res });
+    // リストから両方の数字を削除し、新しい res を追加
+    playNumbers = playNumbers
+      .filter((_, i) => i !== firstIndex && i !== idx)
+      .concat(res);
+    // ステージリセット
+    stage = 0;
+    firstVal = firstIndex = selectedOp = null;
+    elMessage.textContent = '';
+
+    // 終了判定
+    if (playNumbers.length === 1) {
+      const final = playNumbers[0];
+      if (Math.abs(final - 10) < EPS) {
+        elMessage.textContent = '🎉 正解！次へ';
+        setTimeout(nextOrFinish, 500);
+      } else {
+        elMessage.textContent = '不正解…自動クリア';
+        setTimeout(autoClear, 500);
+      }
+    }
+  }
+  renderNumbers();
+  renderOperators();
+  renderHistory();
 }
 
-// ==== ゲーム進行 ====
-function newRound(){
-  numbers = [];
-  for (let i = 0; i < 4; i++) numbers.push(Math.floor(Math.random() * 9) + 1);
-  tokens = [];
+// 2) 演算子クリック
+elOperators.addEventListener('click', e => {
+  const op = e.target.dataset.op;
+  if (stage === 1 && ['+','-','*','/'].includes(op)) {
+    selectedOp = op;
+    stage = 2;
+    elMessage.textContent = 'もう一度数字を選択してください';
+    renderOperators();
+  }
+});
+
+// 3) クリア（入力リセットのみ）
+btnClear.addEventListener('click', () => {
+  playNumbers = originalNumbers.slice();
+  history = [];
+  stage = 0; firstVal = firstIndex = selectedOp = null;
   elMessage.textContent = '';
   renderNumbers();
-  updateDisplay();
+  renderOperators();
+  renderHistory();
+});
+
+// ==== ラウンド管理 ====
+function newRound() {
+  originalNumbers = generatePuzzle();
+  playNumbers     = originalNumbers.slice();
+  history         = [];
+  stage = 0; firstVal = firstIndex = selectedOp = null;
+  elMessage.textContent = '';
   updateStatus();
-}
-function autoClear(){
-  tokens = [];
-  elMessage.textContent = '不正解…自動クリアしました';
   renderNumbers();
-  updateDisplay();
+  renderOperators();
+  renderHistory();
 }
-function nextOrFinish(){
+function autoClear() {
+  playNumbers = originalNumbers.slice();
+  history     = [];
+  stage = 0; firstVal = firstIndex = selectedOp = null;
+  elMessage.textContent = '';
+  renderNumbers();
+  renderOperators();
+  renderHistory();
+}
+function nextOrFinish() {
   if (round < TOTAL_ROUNDS) {
     round++;
     newRound();
@@ -139,70 +198,41 @@ function nextOrFinish(){
     finishGame();
   }
 }
-function finishGame(){
+
+// ==== タイマー＆ランキング ====
+function startTimer() {
+  startTime = Date.now();
+  elTimer.textContent = 'タイム: 0.00 秒';
+  timerID = setInterval(() => {
+    const t = (Date.now() - startTime) / 1000;
+    elTimer.textContent = `タイム: ${t.toFixed(2)} 秒`;
+  }, 100);
+}
+function stopTimer() { clearInterval(timerID); }
+function finishGame() {
   stopTimer();
   elGame.style.display   = 'none';
   elFinish.style.display = 'block';
-  const final = ((Date.now() - startTime) / 1000).toFixed(2);
-  elFinalTime.textContent = final;
+  elFinalTime.textContent = ((Date.now() - startTime) / 1000).toFixed(2);
   renderRanking();
 }
-
-// ==== ランキング表示 ====
-function renderRanking(){
-  const arr = loadRanking().sort((a,b)=>a.time - b.time);
+function loadRanking() {
+  const r = localStorage.getItem('make10_ranking');
+  return r ? JSON.parse(r) : [];
+}
+function saveRanking(arr) {
+  localStorage.setItem('make10_ranking', JSON.stringify(arr));
+}
+function renderRanking() {
+  const arr = loadRanking().sort((a,b)=>a.time-b.time);
   elRankingBd.innerHTML = '';
-  arr.forEach((e, i) => {
+  arr.forEach((e,i) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${i+1}</td><td>${e.name}</td><td>${e.time.toFixed(2)}</td>`;
     elRankingBd.appendChild(tr);
   });
   elRanking.style.display = 'block';
 }
-
-// ==== イベントハンドラ ====
-// 数字ボタン
-function onNumber(e){
-  if (tokens.length && !isNaN(tokens[tokens.length - 1])) return;
-  tokens.push(e.currentTarget.dataset.num);
-  e.currentTarget.disabled = true;
-  updateDisplay();
-  checkAuto();
-}
-// 演算子ボタン
-elOperators.addEventListener('click', e => {
-  const op = e.target.dataset.op;
-  if (!op) return;
-  if (tokens.length === 0) return;
-  if (!isNaN(tokens[tokens.length - 1])) {
-    tokens.push(op);
-    updateDisplay();
-  }
-});
-// クリアボタン：入力リセットのみ
-btnClear.addEventListener('click', () => {
-  tokens = [];
-  elMessage.textContent = '';
-  renderNumbers();
-  updateDisplay();
-});
-
-// 入力完了を自動判定
-function checkAuto(){
-  // “4数字＋3演算子”＝7トークン、末尾が数字
-  if (tokens.length === 7 && !isNaN(tokens[6])) {
-    const expr = parseAndStringify(tokens);
-    const res  = evalExpr(expr);
-    if (res === 10) {
-      elMessage.textContent = '🎉 正解！次の問題に移ります';
-      setTimeout(nextOrFinish, 500);
-    } else {
-      autoClear();
-    }
-  }
-}
-
-// 名前登録
 btnSubmitNm.addEventListener('click', () => {
   const name = elNameIn.value.trim() || '名無し';
   const time = (Date.now() - startTime) / 1000;
