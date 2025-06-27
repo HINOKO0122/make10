@@ -3,24 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <title>MAKE10 パズル</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
   <style>
-    html, body { margin:0; padding:0; font-family: sans-serif; }
-    #app { max-width: 400px; margin: 20px auto; text-align: center; }
-    #numbers button,
-    #operators button,
-    #controls button {
-      width: 60px; height: 40px; margin: 5px; font-size: 1.1rem;
+    * { box-sizing: border-box; }
+    body { margin:0; padding:20px; font-family: sans-serif; text-align: center; }
+    button { 
+      padding: 8px 12px; margin: 4px; font-size: 1rem; 
+      min-width: 70px; white-space: nowrap; 
     }
+    #numbers, #operators { margin: 10px 0; }
     #display { 
-      margin: 10px; padding: 10px; min-height: 2em; 
-      border: 1px solid #ccc; font-size: 1.2rem;
+      margin: 10px auto; padding:10px; 
+      min-height:1.5em; border:1px solid #ccc;
+      font-size: 1.1rem; word-break: break-all;
     }
-    #current { font-size: 1rem; color: #555; }
+    #current { color:#555; margin-bottom:10px; }
+    #status, #timer { margin: 6px 0; font-weight: bold; }
+    #message { margin:10px; color: crimson; }
+    #finish, #ranking { display: none; margin-top: 20px; }
+    table { width:100%; border-collapse: collapse; margin-top:10px; }
+    th, td { border:1px solid #ccc; padding:6px; }
   </style>
 </head>
 <body>
-  <div id="app">
+
+  <div id="game">
     <h1>MAKE10 パズル</h1>
+    <div id="status">問題 1/5</div>
+    <div id="timer">タイム: 0.00 秒</div>
+
     <div id="numbers"></div>
     <div id="operators">
       <button data-op="+">＋</button>
@@ -28,14 +39,37 @@
       <button data-op="*">×</button>
       <button data-op="/">÷</button>
     </div>
+
     <div id="display">式を作ってね</div>
     <div id="current">計算結果：－</div>
+
     <div id="controls">
       <button id="clear">クリア</button>
-      <button id="submit">答え合わせ</button>
     </div>
+
     <div id="message"></div>
   </div>
+
+  <div id="finish">
+    <h2>🎉 クリア！🎉</h2>
+    <p>あなたのタイム: <span id="finalTime">0.00</span> 秒</p>
+    <p>
+      名前を入力: 
+      <input type="text" id="nameInput" placeholder="名無しでもOK" />
+      <button id="submitName">登録</button>
+    </p>
+  </div>
+
+  <div id="ranking">
+    <h2>ランキング</h2>
+    <table>
+      <thead>
+        <tr><th>順位</th><th>名前</th><th>タイム (秒)</th></tr>
+      </thead>
+      <tbody id="rankingBody"></tbody>
+    </table>
+  </div>
+
   <script src="make10.js"></script>
 </body>
 </html>
