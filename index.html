@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>MAKE10 パズル</title>
+  <style>
+    html, body { margin:0; padding:0; font-family: sans-serif; }
+    #app { max-width: 400px; margin: 20px auto; text-align: center; }
+    #numbers button,
+    #operators button,
+    #controls button {
+      width: 60px; height: 40px; margin: 5px; font-size: 1.1rem;
+    }
+    #display { 
+      margin: 10px; padding: 10px; min-height: 2em; 
+      border: 1px solid #ccc; font-size: 1.2rem;
+    }
+    #current { font-size: 1rem; color: #555; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>MAKE10 パズル</h1>
+    <div id="numbers"></div>
+    <div id="operators">
+      <button data-op="+">＋</button>
+      <button data-op="-">－</button>
+      <button data-op="*">×</button>
+      <button data-op="/">÷</button>
+    </div>
+    <div id="display">式を作ってね</div>
+    <div id="current">計算結果：－</div>
+    <div id="controls">
+      <button id="clear">クリア</button>
+      <button id="submit">答え合わせ</button>
+    </div>
+    <div id="message"></div>
+  </div>
+  <script src="make10.js"></script>
+</body>
+</html>
