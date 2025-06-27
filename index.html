@@ -7,26 +7,28 @@
   <style>
     * { box-sizing: border-box; }
     body { margin:0; padding:20px; font-family: sans-serif; text-align: center; }
-    button { 
-      padding: 8px 12px; margin: 4px; font-size: 1rem; 
-      min-width: 70px; white-space: nowrap; 
+    button {
+      padding: 8px 12px; margin: 4px; font-size: 1rem;
+      min-width: 70px; white-space: nowrap;
+    }
+    button.selected {
+      background-color: #f88; color: #fff;
     }
     #numbers, #operators { margin: 10px 0; }
-    #display { 
-      margin: 10px auto; padding:10px; 
+    #display {
+      margin: 10px auto; padding:10px;
       min-height:1.5em; border:1px solid #ccc;
       font-size: 1.1rem; word-break: break-all;
     }
     #current { color:#555; margin-bottom:10px; }
     #status, #timer { margin: 6px 0; font-weight: bold; }
-    #message { margin:10px; color: crimson; }
     #finish, #ranking { display: none; margin-top: 20px; }
     table { width:100%; border-collapse: collapse; margin-top:10px; }
     th, td { border:1px solid #ccc; padding:6px; }
-    /* 選択中のボタンを赤く */
-    button.selected {
-      background-color: #f88;
-      color: #fff;
+    /* 戻るリンク */
+    #back-link {
+      display: block; margin: 20px auto; font-size: 0.9rem;
+      text-decoration: none; color: #06c;
     }
   </style>
 </head>
@@ -49,7 +51,7 @@
     <div id="current">計算結果：－</div>
 
     <div id="controls">
-      <button id="clear">クリア</button>
+      <button id="clear">リセット</button>
     </div>
 
     <div id="message"></div>
@@ -59,7 +61,7 @@
     <h2>🎉 クリア！🎉</h2>
     <p>あなたのタイム: <span id="finalTime">0.00</span> 秒</p>
     <p>
-      名前を入力: 
+      名前を入力：
       <input type="text" id="nameInput" placeholder="名無しでもOK" />
       <button id="submitName">登録</button>
     </p>
@@ -74,6 +76,11 @@
       <tbody id="rankingBody"></tbody>
     </table>
   </div>
+
+  <!-- 戻るリンク -->
+  <a id="back-link" href="https://wiki3.jp/iwakuni-mathclub" target="_blank">
+    ▶︎ 岩校数研トップへ戻る
+  </a>
 
   <script src="make10.js"></script>
 </body>
