@@ -1,41 +1,34 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>MAKE10 パズル</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>MAKE10 デバッグ版</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     * { box-sizing:border-box }
     body { margin:0; padding:20px; font-family:sans-serif; text-align:center }
     button {
-      padding:8px 12px; margin:4px; font-size:1rem;
-      min-width:70px; white-space:nowrap;
+      padding:8px 12px; margin:4px; font-size:1rem; min-width:60px;
     }
     button.selected { background:#f88; color:#fff }
-    #numbers,#operators { margin:10px 0 }
+    #numbers, #operators { margin:10px 0 }
     #display {
       margin:10px auto; padding:10px; border:1px solid #ccc;
       min-height:1.5em; font-size:1.1rem; word-break:break-word;
     }
     #current { color:#555; margin-bottom:10px }
-    #status,#timer { margin:6px 0; font-weight:bold }
+    #status, #timer { margin:6px 0; font-weight:bold }
+    #reset { margin-top:10px }
     #finish { display:none; margin-top:20px }
-    #ranking { margin-top:20px; text-align:left; max-width:500px; margin:20px auto 0 }
-    #ranking h2 { display:flex; justify-content:space-between; align-items:center }
-    #resetRanking { font-size:0.8rem; padding:4px 8px; }
+    #ranking { margin-top:20px; text-align:left; max-width:400px; margin:auto }
     table { width:100%; border-collapse:collapse; margin-top:10px }
     th,td { border:1px solid #ccc; padding:6px; text-align:center }
-    #back-link {
-      display:inline-block; margin:20px auto 0;
-      font-size:0.9rem; color:#06c; text-decoration:none;
-    }
-    #back-link:hover { text-decoration:underline }
   </style>
 </head>
 <body>
 
   <div id="game">
-    <h1>MAKE10 パズル</h1>
+    <h1>MAKE10 デバッグ版</h1>
     <div id="status">問題 1/5</div>
     <div id="timer">タイム: 0.00 秒</div>
     <div id="numbers"></div>
@@ -47,40 +40,23 @@
     </div>
     <div id="display">式を作ってね</div>
     <div id="current">計算結果：－</div>
-    <div id="controls">
-      <button id="clear">リセット</button>
-    </div>
+    <button id="reset">リセット</button>
     <div id="message"></div>
   </div>
 
   <div id="finish">
     <h2>🎉 クリア！🎉</h2>
     <p>あなたのタイム: <span id="finalTime">0.00</span> 秒</p>
-    <p>
-      名前を入力：
-      <input type="text" id="nameInput" placeholder="名無しでもOK" />
-      <button id="submitName">登録</button>
-    </p>
   </div>
 
-  <a id="back-link" href="https://wiki3.jp/iwakuni-mathclub" target="_blank">
-    ▶︎ 岩校数研トップへ戻る
-  </a>
-
   <div id="ranking">
-    <h2>
-      ランキング
-      <button id="resetRanking">ランキングリセット</button>
-    </h2>
+    <h2>ローカルランキング</h2>
     <table>
-      <thead>
-        <tr><th>順位</th><th>名前</th><th>タイム</th></tr>
-      </thead>
+      <thead><tr><th>順位</th><th>タイム (秒)</th></tr></thead>
       <tbody id="rankingBody"></tbody>
     </table>
   </div>
 
-  <!-- こちら１本で Firebase 初期化＋ゲームロジックを読み込み -->
-  <script type="module" src="make10.js"></script>
+  <script src="make10.js"></script>
 </body>
 </html>
