@@ -1,36 +1,50 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>MAKE10 パズル</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>Make10 Infinite</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
   <style>
-    * { box-sizing:border-box }
-    body { margin:0; padding:20px; font-family:sans-serif; text-align:center }
-    button {
-      padding:8px 12px; margin:4px; font-size:1rem; min-width:60px;
+    * { box-sizing:border-box; }
+    body {
+      margin:0; padding:20px;
+      font-family:sans-serif;
+      display:flex; flex-direction:column; align-items:center;
     }
-    button.selected { background:#f88; color:#fff }
-    #numbers,#operators { margin:10px 0 }
-    #operators button { width:48px }
-    #display { margin:10px auto; padding:10px; border:1px solid #ccc; min-height:1.5em }
-    #current { color:#555; margin-bottom:10px }
-    #status,#timer { margin:6px 0; font-weight:bold }
-    #reset { margin-top:10px }
-    #finish { display:none; margin-top:20px }
-    #ranking { margin-top:20px; max-width:300px; margin-left:auto; margin-right:auto; text-align:left }
-    #ranking h2 { text-align:center }
-    #ranking table { width:100%; border-collapse:collapse }
-    #ranking th,#ranking td { border:1px solid #ccc; padding:6px; text-align:center }
+    h1 { margin-bottom:8px; }
+    #count {
+      margin-bottom:12px; font-size:1.1rem;
+    }
+    #numbers, #operators {
+      display:flex; flex-wrap:wrap;
+      justify-content:center; margin-bottom:12px;
+    }
+    #numbers button, #operators button {
+      width:20vw; max-width:80px;
+      margin:4px; padding:12px 0;
+      font-size:1.2rem; border:none;
+      border-radius:4px; background:#eee;
+    }
+    #numbers button.selected,
+    #operators button.selected {
+      background:#f88; color:#fff;
+    }
+    #display {
+      margin:8px 0; min-height:1.4em;
+      font-size:1.2rem;
+    }
+    #message {
+      margin:8px 0; min-height:1.2em;
+      color:#080;
+    }
   </style>
 </head>
 <body>
-
-  <h1>MAKE10 パズル</h1>
-  <div id="status"></div>
-  <div id="timer"></div>
+  <h1>Make10 Infinite</h1>
+  <div id="count">Solved: 0</div>
 
   <div id="numbers"></div>
+
   <div id="operators">
     <button data-op="+">＋</button>
     <button data-op="-">－</button>
@@ -38,25 +52,8 @@
     <button data-op="/">÷</button>
   </div>
 
-  <div id="display">式を作ってね</div>
-  <div id="current">計算結果：－</div>
-
-  <button id="reset">リセット</button>
-
-  <div id="finish">
-    <h2>🎉 クリア！🎉</h2>
-    <p>あなたのタイム：<span id="finalTime">0.00</span> 秒</p>
-  </div>
-
-  <div id="ranking">
-    <h2>ランキング</h2>
-    <table>
-      <thead>
-        <tr><th>順位</th><th>タイム</th></tr>
-      </thead>
-      <tbody id="rankingBody"></tbody>
-    </table>
-  </div>
+  <div id="display">式を作ってください</div>
+  <div id="message"></div>
 
   <script src="make10.js"></script>
 </body>
