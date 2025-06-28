@@ -5,16 +5,17 @@
   let stage = 0, idx1 = null, selOp = null;
 
   // DOM
-  const countEl    = document.getElementById('count');
-  const numEl      = document.getElementById('numbers');
-  const opEl       = document.getElementById('operators');
-  const dispEl     = document.getElementById('display');
-  const msgEl      = document.getElementById('message');
-  const resetBtn   = document.getElementById('resetBtn');
-  const showNextBtn= document.getElementById('showNextBtn');
+  const countEl      = document.getElementById('count');
+  const numEl        = document.getElementById('numbers');
+  const opEl         = document.getElementById('operators');
+  const dispEl       = document.getElementById('display');
+  const msgEl        = document.getElementById('message');
+  const resetBtn     = document.getElementById('resetBtn');
+  const showAnswerBtn= document.getElementById('showAnswerBtn');
+  const nextBtn      = document.getElementById('nextPuzzleBtn');
 
-  // 初期ボタン状態
-  showNextBtn.style.display = 'none';
+  // 初期：次の問題ボタンは隠す
+  nextBtn.style.display = 'none';
 
   // 正解式をバックトラックで求める
   function solveRec(arr) {
@@ -28,32 +29,31 @@
         const rest = arr.filter((_,k) => k!==i && k!==j);
         for (let op of ['+','-','*','/']) {
           if (op==='/' && Math.abs(b.value)<EPS) continue;
-          const val = op==='+'? a.value + b.value
-                    : op==='-'? a.value - b.value
-                    : op==='*'? a.value * b.value
-                    : a.value / b.value;
+          const val  = op==='+'? a.value + b.value
+                      : op==='-'? a.value - b.value
+                      : op==='*'? a.value * b.value
+                      : a.value / b.value;
           const expr = `(${a.expr}${op}${b.expr})`;
-          const sol = solveRec(rest.concat({value:val,expr}));
+          const sol  = solveRec(rest.concat({value:val,expr}));
           if (sol) return sol;
         }
       }
     }
     return null;
   }
-  function solvePuzzle(nums) {
-    const arr = nums.map(n => ({value:n,expr:n.toString()}));
-    return solveRec(arr);
+  function solvePuzzle(arr) {
+    return solveRec(arr.map(n=>({value:n,expr:n.toString()})));
   }
 
-  // 解ける4数生成
+  // 解ける4数生成（バックトラック検査）
   function isSolvable(a) {
-    if (a.length===1) return Math.abs(a[0]-10)<EPS;
-    for(let i=0;i<a.length;i++){
-      for(let j=0;j<a.length;j++){
-        if(i===j) continue;
+    if (a.length === 1) return Math.abs(a[0] - 10) < EPS;
+    for (let i=0;i<a.length;i++){
+      for (let j=0;j<a.length;j++){
+        if (i===j) continue;
         const x=a[i], y=a[j];
         const rest=a.filter((_,k)=>k!==i&&k!==j);
-        for(let op of ['+','-','*','/']){
+        for (let op of ['+','-','*','/']) {
           if(op==='/'&&Math.abs(y)<EPS) continue;
           const r = op==='+'?x+y:op==='-'?x-y:op==='*'?x*y:x/y;
           if(isSolvable(rest.concat(r))) return true;
@@ -66,32 +66,33 @@
     while (1) {
       const t=[];
       while(t.length<4){
-        const n=Math.floor(Math.random()*9)+1;
-        if(!t.includes(n)) t.push(n);
+        const n = Math.floor(Math.random()*9)+1;
+        if (!t.includes(n)) t.push(n);
       }
-      if(isSolvable(t)) return t;
+      if (isSolvable(t)) return t;
     }
   }
 
   // 画面更新
   function render() {
-    // 数字ボタン
+    // 数字
     numEl.innerHTML = '';
     nums.forEach((v,i) => {
       const b = document.createElement('button');
       b.textContent = parseFloat(v.toFixed(3));
       b.dataset.i = i;
-      if(stage>0 && idx1===i) b.classList.add('selected');
+      if (stage>0 && idx1===i) b.classList.add('selected');
       b.disabled = (stage===2 && idx1===i);
       b.onclick = onNumber;
       numEl.appendChild(b);
     });
-    // 演算子ボタン
+    // 演算子
     Array.from(opEl.children).forEach(b=>{
-      const o=b.dataset.op;
+      const o = b.dataset.op;
       b.classList.toggle('selected', stage===2 && selOp===o);
       b.disabled = !(stage===1 || (stage===2 && selOp===o));
     });
+    // 説明
     dispEl.textContent = stage===0
       ? '数字→演算子→数字 の順にタップ'
       : stage===1
@@ -99,14 +100,14 @@
         : `演算子：${selOp} → 数字を選択`;
   }
 
-  // 数字タップ
+  // 数字タップ処理
   function onNumber(e) {
     const i = +e.currentTarget.dataset.i, v = nums[i];
     if (stage===0) {
-      idx1 = i; stage=1; msgEl.textContent='';
+      idx1 = i; stage = 1; msgEl.textContent = '';
     }
     else if (stage===1) {
-      if (i===idx1) { stage=0; idx1=null; }
+      if (i===idx1) { stage = 0; idx1 = null; }
     }
     else if (stage===2) {
       // 計算
@@ -115,20 +116,17 @@
       nums = nums.filter((_,k)=>k!==idx1&&k!==i).concat(r);
       msgEl.textContent = `計算：${a}${selOp}${b} = ${r.toFixed(3)}`;
       stage=0; idx1=null; selOp=null;
-
       // 残り1つで判定
       if (nums.length===1) {
         if (Math.abs(nums[0]-10)<EPS) {
           solved++;
           countEl.textContent = `Solved: ${solved}`;
           msgEl.style.color = '#080';
-          msgEl.textContent = '正解！次の問題を生成中…';
-          setTimeout(startNew, 600);
+          msgEl.textContent = '正解！答えを確認するか次へ進んでください';
         } else {
           msgEl.style.color = '#a00';
           msgEl.textContent = '不正解…同じ問題をリセットしました';
           resetCurrent();
-          showNextBtn.style.display = 'inline-block';
         }
       }
     }
@@ -155,35 +153,41 @@
     render();
   }
 
-  // 新しい問題へ
+  // 新しい問題をセット
   function startNew() {
     original = genPuzzle();
     nums = original.slice();
     stage=0; idx1=selOp=null;
-    msgEl.textContent=''; showNextBtn.style.display='none';
+    msgEl.textContent=''; nextBtn.style.display='none';
     render();
   }
 
-  // 「リセット」押下
+  // リセットボタン
   resetBtn.addEventListener('click', () => {
-    msgEl.textContent='リセットしました';
+    msgEl.style.color = '#000';
+    msgEl.textContent = '問題をリセットしました';
     resetCurrent();
-    showNextBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
   });
 
-  // 「答えを見て次の問題に行く」押下
-  showNextBtn.addEventListener('click', () => {
+  // 答えを見るボタン
+  showAnswerBtn.addEventListener('click', () => {
     const expr = solvePuzzle(original);
     msgEl.style.color = '#008';
     msgEl.textContent = expr
       ? `答え：${expr} = 10`
       : '解答なし';
-    setTimeout(startNew, 2000);
+    nextBtn.style.display = 'inline-block';
+  });
+
+  // 次の問題へボタン
+  nextBtn.addEventListener('click', () => {
+    startNew();
   });
 
   // 初期化
   countEl.textContent = `Solved: ${solved}`;
   original = genPuzzle();
-  nums = original.slice();
+  nums     = original.slice();
   render();
 })();
