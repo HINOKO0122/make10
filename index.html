@@ -42,9 +42,10 @@
       border:none; border-radius:4px;
       color:#fff; background:#48f;
     }
-    #controls button#resetBtn { background:#888; }
-    #controls button#showAnswerBtn { background:#06c; }
-    #controls button#nextPuzzleBtn { background:#4a4; }
+    #resetBtn { background:#888; }
+    #showAnswerBtn { background:#06c; }
+    #nextPuzzleBtn { background:#4a4; }
+    #nextPuzzleBtn[hidden] { display:none; }
     #back-link {
       margin-top:20px; font-size:0.9rem;
       color:#06c; text-decoration:none;
@@ -57,7 +58,6 @@
   <div id="count">Solved: 0</div>
 
   <div id="numbers"></div>
-
   <div id="operators">
     <button data-op="+">＋</button>
     <button data-op="-">－</button>
@@ -70,8 +70,8 @@
 
   <div id="controls">
     <button id="resetBtn">リセット</button>
-    <button id="showAnswerBtn">答えを見る</button>
-    <button id="nextPuzzleBtn">次の問題へ</button>
+    <button id="showAnswerBtn">答えを見て次の問題に行く</button>
+    <button id="nextPuzzleBtn" hidden>次の問題へ</button>
   </div>
 
   <a id="back-link" href="https://wiki3.jp/iwakuni-mathclub" target="_blank">
