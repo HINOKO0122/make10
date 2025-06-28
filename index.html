@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Make10 Infinite</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
   <style>
-    * { box-sizing:border-box; }
+    * { box-sizing:border-box }
     body {
       margin:0; padding:20px;
       font-family:sans-serif;
       display:flex; flex-direction:column; align-items:center;
     }
-    h1 { margin-bottom:8px; }
-    #count {
-      margin-bottom:12px; font-size:1.1rem;
-    }
+    h1 { margin-bottom:8px }
+    #count { margin-bottom:12px; font-size:1.1rem }
     #numbers, #operators {
       display:flex; flex-wrap:wrap;
       justify-content:center; margin-bottom:12px;
@@ -35,7 +33,18 @@
     }
     #message {
       margin:8px 0; min-height:1.2em;
-      color:#080;
+      font-size:1rem;
+    }
+    #controls {
+      margin-top:12px;
+    }
+    #controls button {
+      margin:4px; padding:8px 16px;
+      font-size:1rem; border:none;
+      border-radius:4px; background:#48f; color:#fff;
+    }
+    #controls button#nextPuzzle {
+      background:#4a4;
     }
   </style>
 </head>
@@ -54,6 +63,11 @@
 
   <div id="display">式を作ってください</div>
   <div id="message"></div>
+
+  <div id="controls">
+    <button id="showAnswer">答えを見る</button>
+    <button id="nextPuzzle">次の問題へ</button>
+  </div>
 
   <script src="make10.js"></script>
 </body>
