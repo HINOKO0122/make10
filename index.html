@@ -32,20 +32,23 @@
       font-size:1.2rem;
     }
     #message {
-      margin:8px 0; min-height:1.2em;
-      font-size:1rem;
+      margin:4px 0; min-height:1.2em; font-size:1rem;
     }
     #controls {
-      margin-top:12px;
+      display:flex; gap:8px; margin-top:12px;
     }
     #controls button {
-      margin:4px; padding:8px 16px;
-      font-size:1rem; border:none;
-      border-radius:4px; background:#48f; color:#fff;
+      padding:8px 16px; font-size:1rem;
+      border:none; border-radius:4px;
+      color:#fff; background:#48f;
     }
-    #controls button#nextPuzzle {
-      background:#4a4;
+    #controls button#resetBtn { background:#888; }
+    #controls button#showNextBtn { background:#4a4; }
+    #back-link {
+      margin-top:20px; font-size:0.9rem;
+      color:#06c; text-decoration:none;
     }
+    #back-link:hover { text-decoration:underline }
   </style>
 </head>
 <body>
@@ -61,13 +64,17 @@
     <button data-op="/">÷</button>
   </div>
 
-  <div id="display">式を作ってください</div>
+  <div id="display">数字→演算子→数字 の順にタップ</div>
   <div id="message"></div>
 
   <div id="controls">
-    <button id="showAnswer">答えを見る</button>
-    <button id="nextPuzzle">次の問題へ</button>
+    <button id="resetBtn">リセット</button>
+    <button id="showNextBtn">答えを見て次の問題に行く</button>
   </div>
+
+  <a id="back-link" href="https://wiki3.jp/iwakuni-mathclub" target="_blank">
+    ▶︎ 岩国高校数学研究部トップページへ戻る
+  </a>
 
   <script src="make10.js"></script>
 </body>
